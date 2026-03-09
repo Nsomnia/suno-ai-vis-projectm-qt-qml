@@ -1,0 +1,36 @@
+# Icon resources directory
+# Add SVG icons here:
+# - menu.svg
+# - settings.svg
+# - play.svg
+# - pause.svg
+# - stop.svg
+# - record.svg
+# - skip-back.svg
+# - skip-forward.svg
+# - volume.svg
+# - folder.svg
+# - sparkles.svg
+# - music.svg
+# - waveform.svg
+# - code.svg
+# - text.svg
+# - users.svg
+# - chevron-left.svg
+# - chevron-right.svg
+# - chevron-up.svg
+# - chevron-down.svg
+# - maximize.svg
+# - git-commit.svg
+# - plus.svg
+# - star.svg
+# - file-plus.svg
+# - folder-open.svg
+# - save.svg
+# - video.svg
+# - download.svg
+# - import.svg
+# - sidebar-right.svg
+#
+# Recommended: Use Lucide icons (https://lucide.dev/) or similar
+# They're MIT licensed and look great

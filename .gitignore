@@ -1,0 +1,135 @@
+# Build directories
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.ninja
+.ninja_deps
+.ninja_logs
+
+# Compiled objects
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+
+# Qt generated files
+*.qm
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*_autogen/
+*_automoc/
+*.autosave
+
+# CMake generated
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+install_manifest.txt
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sln
+*.vcxproj
+*.vcxproj.*
+*.code-workspace
+.project
+.cproject
+*.kdev4
+.kdev4/
+
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+secrets.toml
+secrets.yaml
+secrets.yml
+config.local.*
+*.secret
+.token
+.apikey
+
+# Logs and databases
+*.log
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Package manager caches
+node_modules/
+.npm/
+.yarn/
+.pnp.*
+pip-cache/
+__pycache__/
+*.pyc
+*.pyo
+
+# Test coverage
+coverage/
+*.gcda
+*.gcno
+*.gcov
+lcov.info
+*.coveralls
+
+# Documentation
+docs/_build/
+doxygen/
+*.dox
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*~
+tmp/
+temp/
+
+# Dependencies (if vendored)
+vendor/
+third_party/
+.externalNativeBuild/
+
+# Package outputs
+*.deb
+*.rpm
+*.apk
+*.aab
+*.dmg
+*.msi
+*.pkg
