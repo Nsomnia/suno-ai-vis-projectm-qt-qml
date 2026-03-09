@@ -13,12 +13,15 @@ class ConfigManager : public QObject
     Q_OBJECT
     Q_PROPERTY(QString currentTheme READ currentTheme WRITE setCurrentTheme NOTIFY currentThemeChanged)
     Q_PROPERTY(bool autoSaveEnabled READ autoSaveEnabled WRITE setAutoSaveEnabled NOTIFY autoSaveEnabledChanged)
+    Q_PROPERTY(QString gitUserName READ gitUserName WRITE setGitUserName NOTIFY gitUserNameChanged)
+    Q_PROPERTY(QString gitUserEmail READ gitUserEmail WRITE setGitUserEmail NOTIFY gitUserEmailChanged)
+    Q_PROPERTY(bool gitAutoCommit READ gitAutoCommit WRITE setGitAutoCommit NOTIFY gitAutoCommitChanged)
 
 public:
     static ConfigManager* instance();
     
-    bool load();
-    bool save();
+    Q_INVOKABLE bool load();
+    Q_INVOKABLE bool save();
     
     // Theme settings
     QString currentTheme() const { return m_currentTheme; }
@@ -60,13 +63,13 @@ public:
     
     // Git settings
     QString gitUserName() const { return m_gitUserName; }
-    void setGitUserName(const QString& name);
+    Q_INVOKABLE void setGitUserName(const QString& name);
     
     QString gitUserEmail() const { return m_gitUserEmail; }
-    void setGitUserEmail(const QString& email);
+    Q_INVOKABLE void setGitUserEmail(const QString& email);
     
     bool gitAutoCommit() const { return m_gitAutoCommit; }
-    void setGitAutoCommit(bool enabled);
+    Q_INVOKABLE void setGitAutoCommit(bool enabled);
     
     // Network settings
     QString sunoApiEndpoint() const { return m_sunoApiEndpoint; }
@@ -84,6 +87,9 @@ public:
 signals:
     void currentThemeChanged();
     void autoSaveEnabledChanged();
+    void gitUserNameChanged();
+    void gitUserEmailChanged();
+    void gitAutoCommitChanged();
     void configChanged();
 
 private:

@@ -109,10 +109,4 @@ resources/    - Icons, assets
 ## Security Considerations
 
 - Never commit secrets, tokens, or credentials
-- Use environment variables or secure storage for API keys
-- Validate all network inputs
-
-## Contact
-
-- Author: Derek Vanee
-- License: MIT
+- Use environment variables or secure storage outside of the repository root directory for API keys and other secrets.

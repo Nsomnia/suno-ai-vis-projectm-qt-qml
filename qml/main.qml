@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Effects
 import QtQuick.Window
 import SunoVisualizer
 
@@ -49,6 +50,26 @@ ApplicationWindow {
         }
     }
     
+    Shortcut {
+        sequences: [StandardKey.Quit, "Ctrl+Q"]
+        onActivated: Qt.quit()
+    }
+    
+    Shortcut {
+        sequence: "Escape"
+        onActivated: {
+            if (settingsWindow.visible) {
+                settingsWindow.hide()
+            } else if (mainWindow.visibility === Window.FullScreen) {
+                mainWindow.showNormal()
+            }
+        }
+    }
+    
+    onClosing: function(close) {
+        Qt.quit()
+    }
+    
     // Main layout
     RowLayout {
         anchors.fill: parent
@@ -72,22 +93,22 @@ ApplicationWindow {
             sections: [
                 {
                     "title": "Project",
-                    "icon": "qrc:/icons/folder.svg",
+                    "icon": "qrc:/SunoVisualizer/resources/icons/folder.svg",
                     "content": "ProjectSection"
                 },
                 {
                     "title": "Presets",
-                    "icon": "qrc:/icons/sparkles.svg",
+                    "icon": "qrc:/SunoVisualizer/resources/icons/sparkles.svg",
                     "content": "PresetsSection"
                 },
                 {
                     "title": "Audio",
-                    "icon": "qrc:/icons/music.svg",
+                    "icon": "qrc:/SunoVisualizer/resources/icons/music.svg",
                     "content": "AudioSection"
                 },
                 {
                     "title": "Stems",
-                    "icon": "qrc:/icons/waveform.svg",
+                    "icon": "qrc:/SunoVisualizer/resources/icons/waveform.svg",
                     "content": "StemsSection"
                 }
             ]
@@ -113,7 +134,7 @@ ApplicationWindow {
                     
                     // Menu button
                     ToolButton {
-                        icon.source: "qrc:/icons/menu.svg"
+                        icon.source: "qrc:/SunoVisualizer/resources/icons/menu.svg"
                         icon.color: themeManager.textColor
                         onClicked: leftDrawerOpen = !leftDrawerOpen
                         
@@ -151,7 +172,7 @@ ApplicationWindow {
                     
                     // Settings button
                     ToolButton {
-                        icon.source: "qrc:/icons/settings.svg"
+                        icon.source: "qrc:/SunoVisualizer/resources/icons/settings.svg"
                         icon.color: themeManager.textColor
                         onClicked: settingsWindow.show()
                         
@@ -161,7 +182,7 @@ ApplicationWindow {
                     
                     // Right drawer toggle
                     ToolButton {
-                        icon.source: "qrc:/icons/sidebar-right.svg"
+                        icon.source: "qrc:/SunoVisualizer/resources/icons/sidebar-right.svg"
                         icon.color: themeManager.textColor
                         onClicked: rightDrawerOpen = !rightDrawerOpen
                         
@@ -204,7 +225,7 @@ ApplicationWindow {
                     
                     // Previous
                     RoundButton {
-                        icon.source: "qrc:/icons/skip-back.svg"
+                        icon.source: "qrc:/SunoVisualizer/resources/icons/skip-back.svg"
                         icon.color: themeManager.textColor
                         icon.width: 24
                         icon.height: 24
@@ -218,7 +239,7 @@ ApplicationWindow {
                         implicitWidth: 56
                         implicitHeight: 56
                         
-                        icon.source: isPlaying ? "qrc:/icons/pause.svg" : "qrc:/icons/play.svg"
+                        icon.source: isPlaying ? "qrc:/SunoVisualizer/resources/icons/pause.svg" : "qrc:/SunoVisualizer/resources/icons/play.svg"
                         icon.color: themeManager.backgroundColor
                         icon.width: 28
                         icon.height: 28
@@ -236,7 +257,7 @@ ApplicationWindow {
                     
                     // Next
                     RoundButton {
-                        icon.source: "qrc:/icons/skip-forward.svg"
+                        icon.source: "qrc:/SunoVisualizer/resources/icons/skip-forward.svg"
                         icon.color: themeManager.textColor
                         icon.width: 24
                         icon.height: 24
@@ -253,7 +274,7 @@ ApplicationWindow {
                     
                     // Record button
                     RoundButton {
-                        icon.source: "qrc:/icons/record.svg"
+                        icon.source: "qrc:/SunoVisualizer/resources/icons/record.svg"
                         icon.color: isRecording ? "#FF4444" : themeManager.textColor
                         icon.width: 24
                         icon.height: 24
@@ -284,10 +305,14 @@ ApplicationWindow {
                         spacing: 8
                         
                         Image {
-                            source: "qrc:/icons/volume.svg"
+                            id: volumeIcon
+                            source: "qrc:/SunoVisualizer/resources/icons/volume.svg"
                             sourceSize: Qt.size(20, 20)
-                            
-                            // Simple color overlay would go here
+                            layer.enabled: true
+                            layer.effect: MultiEffect {
+                                colorization: 1.0
+                                colorizationColor: themeManager.textColor
+                            }
                         }
                         
                         Slider {
@@ -326,17 +351,17 @@ ApplicationWindow {
             sections: [
                 {
                     "title": "Shader Editor",
-                    "icon": "qrc:/icons/code.svg",
+                    "icon": "qrc:/SunoVisualizer/resources/icons/code.svg",
                     "content": "ShaderEditorSection"
                 },
                 {
                     "title": "Lyrics",
-                    "icon": "qrc:/icons/text.svg",
+                    "icon": "qrc:/SunoVisualizer/resources/icons/text.svg",
                     "content": "LyricsSection"
                 },
                 {
                     "title": "Community",
-                    "icon": "qrc:/icons/users.svg",
+                    "icon": "qrc:/SunoVisualizer/resources/icons/users.svg",
                     "content": "CommunitySection"
                 }
             ]
@@ -367,6 +392,9 @@ ApplicationWindow {
                 text: "💡"
                 font.pixelSize: 11
                 
+                HoverHandler {
+                    id: statusHoverHandler
+                }
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
@@ -375,7 +403,7 @@ ApplicationWindow {
                     cursorShape: Qt.PointingHandCursor
                 }
                 
-                ToolTip.visible: hovered
+                ToolTip.visible: statusHoverHandler.hovered
                 ToolTip.text: "Click for wisdom from the masters"
             }
             

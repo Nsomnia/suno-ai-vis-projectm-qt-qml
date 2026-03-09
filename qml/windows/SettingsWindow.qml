@@ -17,6 +17,16 @@ Window {
     flags: Qt.Dialog | Qt.WindowCloseButtonHint | Qt.WindowTitleHint
     modality: Qt.ApplicationModal
     
+    onClosing: function(close) {
+        close.accepted = true
+        settingsWindow.hide()
+    }
+    
+    Shortcut {
+        sequence: "Escape"
+        onActivated: settingsWindow.hide()
+    }
+    
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 0

@@ -56,7 +56,7 @@ void ThemeManager::loadDarkTheme()
     m_secondaryColor = QColor("#03DAC6");    // Teal
     m_backgroundColor = QColor("#121212");   // Almost black
     m_surfaceColor = QColor("#1E1E1E");      // Dark gray
-    m_textColor = QColor("#E0E0E0");         // Light gray
+    m_textColor = QColor("#FFFFFF");          // White for maximum contrast
     m_accentColor = QColor("#CF6679");       // Pink
     
     spdlog::debug("Dark theme loaded (superior choice confirmed)");

@@ -38,33 +38,81 @@ void PresetManager::scanPresets()
 {
     m_presets.clear();
     
-    QDir dir(m_presetDirectory);
+    // Scan user preset directory
+    scanPath(m_presetDirectory, false);
+    
+    // Scan system preset directories
+    m_systemPresetPaths = {
+        "/usr/share/projectM/presets",
+        "/usr/local/share/projectM/presets"
+    };
+    
+    for (const QString& sysPath : m_systemPresetPaths) {
+        if (QDir(sysPath).exists()) {
+            scanPath(sysPath, true);
+        }
+    }
+    
+    spdlog::info("Total presets loaded: {}", m_presets.size());
+    emit presetsChanged();
+}
+
+void PresetManager::scanPath(const QString& path, bool recursive)
+{
+    QDir dir(path);
+    if (!dir.exists()) {
+        return;
+    }
+    
     QStringList filters;
     filters << "*.milk" << "*.prjm";
     
-    QFileInfoList files = dir.entryInfoList(filters, QDir::Files);
-    
-    for (const QFileInfo& fileInfo : files) {
-        PresetInfo info;
-        info.name = fileInfo.baseName();
-        info.filePath = fileInfo.absoluteFilePath();
-        info.created = fileInfo.birthTime();
-        info.modified = fileInfo.lastModified();
-        
-        // Load additional metadata if available
-        if (m_metadata.contains(info.name)) {
-            QJsonObject presetMeta = m_metadata[info.name].toObject();
-            info.author = presetMeta["author"].toString();
-            info.description = presetMeta["description"].toString();
-            info.rating = presetMeta["rating"].toInt();
-            info.isFavorite = presetMeta["favorite"].toBool();
-            info.gitCommitHash = presetMeta["commit"].toString();
-        }
-        
-        m_presets.append(info);
+    QDir::Filters filterFlags = QDir::Files;
+    if (recursive) {
+        filterFlags |= QDir::AllDirs;
     }
     
-    emit presetsChanged();
+    QFileInfoList entries = dir.entryInfoList(filterFlags | QDir::NoDotAndDotDot | QDir::Readable);
+    entries = QDir::cleanPath(path) == path ? 
+              QDir(path).entryInfoList(filterFlags | QDir::NoDotAndDotDot | QDir::Readable) : entries;
+    
+    // Use separate name filter matching
+    QRegularExpression nameFilter("\\.(milk|prjm)$", QRegularExpression::CaseInsensitiveOption);
+    
+    for (const QFileInfo& entry : entries) {
+        if (entry.isDir() && recursive) {
+            scanPath(entry.absoluteFilePath(), true);
+        } else if (entry.isFile()) {
+            // Check if file matches our patterns
+            if (!nameFilter.match(entry.fileName()).hasMatch()) {
+                continue;
+            }
+            
+            PresetInfo info;
+            info.name = entry.baseName();
+            info.filePath = entry.absoluteFilePath();
+            info.created = entry.birthTime();
+            info.modified = entry.lastModified();
+            
+            // Mark system presets (read-only, can't be deleted)
+            bool isSystemPreset = !info.filePath.startsWith(m_presetDirectory);
+            info.gitCommitHash = isSystemPreset ? "SYSTEM" : QString();
+            
+            // Load additional metadata if available
+            if (m_metadata.contains(info.name)) {
+                QJsonObject presetMeta = m_metadata[info.name].toObject();
+                info.author = presetMeta["author"].toString();
+                info.description = presetMeta["description"].toString();
+                info.rating = presetMeta["rating"].toInt();
+                info.isFavorite = presetMeta["favorite"].toBool();
+                if (!isSystemPreset) {
+                    info.gitCommitHash = presetMeta["commit"].toString();
+                }
+            }
+            
+            m_presets.append(info);
+        }
+    }
 }
 
 void PresetManager::loadPresetMetadata()
@@ -184,6 +232,12 @@ bool PresetManager::deletePreset(const QString& name)
     
     if (info.filePath.isEmpty()) {
         emit errorOccurred("Preset not found");
+        return false;
+    }
+    
+    // Don't allow deleting system presets
+    if (info.gitCommitHash == "SYSTEM") {
+        emit errorOccurred("Cannot delete system presets");
         return false;
     }
     

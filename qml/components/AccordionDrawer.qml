@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Effects
 
 Rectangle {
     id: root
@@ -39,8 +40,8 @@ Rectangle {
                 
                 ToolButton {
                     icon.source: isOpen 
-                        ? (side === "left" ? "qrc:/icons/chevron-left.svg" : "qrc:/icons/chevron-right.svg")
-                        : (side === "left" ? "qrc:/icons/chevron-right.svg" : "qrc:/icons/chevron-left.svg")
+                        ? (side === "left" ? "qrc:/SunoVisualizer/resources/icons/chevron-left.svg" : "qrc:/SunoVisualizer/resources/icons/chevron-right.svg")
+                        : (side === "left" ? "qrc:/SunoVisualizer/resources/icons/chevron-right.svg" : "qrc:/SunoVisualizer/resources/icons/chevron-left.svg")
                     icon.color: themeManager.textColor
                     onClicked: root.toggleRequested()
                 }
@@ -136,11 +137,14 @@ Rectangle {
                     spacing: 12
                     
                     Image {
+                        id: sectionIcon
                         source: iconSource
                         sourceSize: Qt.size(20, 20)
-                        opacity: 0.8
-                        
-                        // Color overlay would be applied here
+                        layer.enabled: true
+                        layer.effect: MultiEffect {
+                            colorization: 1.0
+                            colorizationColor: themeManager.textColor
+                        }
                     }
                     
                     Label {
@@ -153,10 +157,15 @@ Rectangle {
                     }
                     
                     Image {
+                        id: chevronIcon
                         visible: showLabels
-                        source: expanded ? "qrc:/icons/chevron-up.svg" : "qrc:/icons/chevron-down.svg"
+                        source: expanded ? "qrc:/SunoVisualizer/resources/icons/chevron-up.svg" : "qrc:/SunoVisualizer/resources/icons/chevron-down.svg"
                         sourceSize: Qt.size(16, 16)
-                        opacity: 0.6
+                        layer.enabled: true
+                        layer.effect: MultiEffect {
+                            colorization: 1.0
+                            colorizationColor: themeManager.textColor
+                        }
                     }
                 }
             }
@@ -217,10 +226,10 @@ Rectangle {
             
             Repeater {
                 model: [
-                    { text: "New Project", icon: "qrc:/icons/file-plus.svg" },
-                    { text: "Open Project", icon: "qrc:/icons/folder-open.svg" },
-                    { text: "Save Project", icon: "qrc:/icons/save.svg" },
-                    { text: "Export Video", icon: "qrc:/icons/video.svg" }
+                    { text: "New Project", icon: "qrc:/SunoVisualizer/resources/icons/file-plus.svg" },
+                    { text: "Open Project", icon: "qrc:/SunoVisualizer/resources/icons/folder-open.svg" },
+                    { text: "Save Project", icon: "qrc:/SunoVisualizer/resources/icons/save.svg" },
+                    { text: "Export Video", icon: "qrc:/SunoVisualizer/resources/icons/video.svg" }
                 ]
                 
                 delegate: Button {
@@ -276,7 +285,7 @@ Rectangle {
                 model: appController.presetManager ? appController.presetManager.presetCount : 0
                 
                 delegate: ItemDelegate {
-                    width: parent.width
+                    width: presetListView.width
                     height: 36
                     
                     contentItem: RowLayout {
@@ -287,9 +296,14 @@ Rectangle {
                         }
                         Item { Layout.fillWidth: true }
                         Image {
-                            source: "qrc:/icons/star.svg"
+                            id: starIcon
+                            source: "qrc:/SunoVisualizer/resources/icons/star.svg"
                             sourceSize: Qt.size(14, 14)
-                            opacity: 0.5
+                            layer.enabled: true
+                            layer.effect: MultiEffect {
+                                colorization: 1.0
+                                colorizationColor: themeManager.textColor
+                            }
                         }
                     }
                     

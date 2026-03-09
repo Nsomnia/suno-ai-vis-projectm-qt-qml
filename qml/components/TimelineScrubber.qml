@@ -170,7 +170,7 @@ Rectangle {
             
             // Timeline tools
             ToolButton {
-                icon.source: "qrc:/icons/git-commit.svg"
+                icon.source: "qrc:/SunoVisualizer/resources/icons/git-commit.svg"
                 icon.color: themeManager.textColor
                 icon.width: 16
                 icon.height: 16
@@ -180,7 +180,7 @@ Rectangle {
             }
             
             ToolButton {
-                icon.source: "qrc:/icons/plus.svg"
+                icon.source: "qrc:/SunoVisualizer/resources/icons/plus.svg"
                 icon.color: themeManager.textColor
                 icon.width: 16
                 icon.height: 16

@@ -7,68 +7,95 @@ Rectangle {
     
     color: "#000000"
     
-    // Placeholder gradient background until projectM renders
-    Rectangle {
+    property var visualizer: appController ? appController.visualizer : null
+    property bool projectMReady: visualizer && visualizer.initialized
+    
+    // projectM rendered frame display
+    Image {
+        id: projectMOutput
         anchors.fill: parent
+        fillMode: Image.PreserveAspectCrop
+        visible: projectMReady
+        cache: false
+        
+        // Frame update timer
+        Timer {
+            id: frameTimer
+            interval: 16 // ~60 fps
+            running: projectMReady
+            repeat: true
+            onTriggered: {
+                if (root.visualizer) {
+                    root.visualizer.renderFrame()
+                    projectMOutput.source = "image://projectm/" + Date.now()
+                }
+            }
+        }
+    }
+    
+    // Fallback placeholder when projectM not initialized
+    Rectangle {
+        id: placeholderViz
+        anchors.fill: parent
+        visible: !projectMReady
         gradient: Gradient {
             GradientStop { position: 0.0; color: "#1a1a2e" }
             GradientStop { position: 0.5; color: "#16213e" }
             GradientStop { position: 1.0; color: "#0f0f1a" }
         }
-    }
-    
-    // Animated placeholder visualization
-    Canvas {
-        id: vizCanvas
-        anchors.fill: parent
         
-        property real time: 0
-        property real bassLevel: 0.5
-        property real midLevel: 0.5
-        property real trebleLevel: 0.5
-        
-        onPaint: {
-            var ctx = getContext("2d");
-            ctx.clearRect(0, 0, width, height);
+        Canvas {
+            id: vizCanvas
+            anchors.fill: parent
             
-            // Draw some placeholder visualization bars
-            var barCount = 64;
-            var barWidth = width / barCount;
+            property real time: 0
             
-            for (var i = 0; i < barCount; i++) {
-                var x = i * barWidth;
-                var normalizedPos = i / barCount;
+            onPaint: {
+                var ctx = getContext("2d");
+                ctx.clearRect(0, 0, width, height);
                 
-                // Simulated frequency response
-                var heightMultiplier = Math.sin(normalizedPos * Math.PI) * 
-                                       (0.5 + 0.5 * Math.sin(time * 2 + i * 0.1));
-                var barHeight = height * 0.6 * heightMultiplier;
+                var barCount = 64;
+                var barWidth = width / barCount;
                 
-                // Color based on frequency band
-                var hue = (normalizedPos * 120 + time * 20) % 360;
-                ctx.fillStyle = "hsla(" + hue + ", 70%, 50%, 0.8)";
+                for (var i = 0; i < barCount; i++) {
+                    var x = i * barWidth;
+                    var normalizedPos = i / barCount;
+                    
+                    var heightMultiplier = Math.sin(normalizedPos * Math.PI) * 
+                                           (0.5 + 0.5 * Math.sin(time * 2 + i * 0.1));
+                    var barHeight = height * 0.6 * heightMultiplier;
+                    
+                    var hue = (normalizedPos * 120 + time * 20) % 360;
+                    ctx.fillStyle = "hsla(" + hue + ", 70%, 50%, 0.8)";
+                    
+                    var centerY = height / 2;
+                    ctx.fillRect(x, centerY - barHeight / 2, barWidth - 2, barHeight);
+                }
                 
-                // Draw bar from center
-                var centerY = height / 2;
-                ctx.fillRect(x, centerY - barHeight / 2, barWidth - 2, barHeight);
+                ctx.beginPath();
+                ctx.arc(width / 2, height / 2, 100 + 50 * Math.sin(time), 0, 2 * Math.PI);
+                ctx.strokeStyle = themeManager.accentColor;
+                ctx.lineWidth = 2;
+                ctx.stroke();
             }
             
-            // Draw circular element
-            ctx.beginPath();
-            ctx.arc(width / 2, height / 2, 100 + 50 * Math.sin(time), 0, 2 * Math.PI);
-            ctx.strokeStyle = themeManager.accentColor;
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            Timer {
+                interval: 16
+                running: !projectMReady
+                repeat: true
+                onTriggered: {
+                    vizCanvas.time += 0.016;
+                    vizCanvas.requestPaint();
+                }
+            }
         }
         
-        Timer {
-            interval: 16 // ~60 fps
-            running: true
-            repeat: true
-            onTriggered: {
-                vizCanvas.time += 0.016;
-                vizCanvas.requestPaint();
-            }
+        Label {
+            anchors.centerIn: parent
+            text: "projectM Initializing..."
+            color: "white"
+            font.pixelSize: 18
+            opacity: 0.6
         }
     }
     
@@ -80,8 +107,8 @@ Rectangle {
         spacing: 4
         
         Label {
-            text: appController.visualizer ? 
-                  ("Preset: " + (appController.visualizer.currentPreset || "None")) : 
+            text: root.visualizer ? 
+                  ("Preset: " + (root.visualizer.currentPreset || "None")) : 
                   "Initializing..."
             color: "white"
             font.pixelSize: 12
@@ -89,7 +116,16 @@ Rectangle {
         }
         
         Label {
-            text: "FPS: 60" // Would be actual FPS
+            text: "FPS: " + (root.visualizer ? root.visualizer.fps : 60)
+            color: "white"
+            font.pixelSize: 10
+            opacity: 0.5
+        }
+        
+        Label {
+            text: root.visualizer ? 
+                  ("Presets: " + root.visualizer.presetCount) : 
+                  "Loading presets..."
             color: "white"
             font.pixelSize: 10
             opacity: 0.5
@@ -102,8 +138,8 @@ Rectangle {
         anchors.right: parent.right
         anchors.margins: 16
         
-        icon.source: "qrc:/icons/maximize.svg"
-        icon.color: "white"
+        icon.source: "qrc:/SunoVisualizer/resources/icons/maximize.svg"
+        icon.color: themeManager.textColor
         flat: true
         opacity: 0.7
         
@@ -139,16 +175,6 @@ Rectangle {
             color: "white"
             font.pixelSize: 28
             font.weight: Font.Bold
-            
-            // Text shadow effect
-            layer.enabled: true
-            layer.effect: DropShadow {
-                horizontalOffset: 2
-                verticalOffset: 2
-                radius: 8
-                samples: 16
-                color: "#80000000"
-            }
         }
     }
     
@@ -218,21 +244,21 @@ Rectangle {
         
         MenuItem {
             text: "Next Preset"
-            onTriggered: appController.visualizer.nextPreset()
+            onTriggered: root.visualizer.nextPreset(true)
         }
         MenuItem {
             text: "Previous Preset"
-            onTriggered: appController.visualizer.previousPreset()
+            onTriggered: root.visualizer.previousPreset(true)
         }
         MenuItem {
             text: "Random Preset"
-            onTriggered: appController.visualizer.randomPreset()
+            onTriggered: root.visualizer.randomPreset()
         }
         MenuSeparator {}
         MenuItem {
             text: "Lock Preset"
             checkable: true
-            onTriggered: appController.visualizer.lockPreset(checked)
+            onTriggered: root.visualizer.lockPreset(checked)
         }
         MenuSeparator {}
         MenuItem {
@@ -245,14 +271,5 @@ Rectangle {
                 }
             }
         }
-    }
-    
-    // Drop shadow import for lyric effect
-    component DropShadow: Item {
-        property real horizontalOffset: 0
-        property real verticalOffset: 0
-        property real radius: 0
-        property int samples: 0
-        property color color: "black"
     }
 }

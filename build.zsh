@@ -54,7 +54,7 @@ get_optimal_jobs() {
         return
     fi
     
-    local cpu_count=1
+    local cpu_count=2
     if [[ -r /proc/cpuinfo ]]; then
         cpu_count=$(grep -c '^processor' /proc/cpuinfo 2>/dev/null || print "1")
     fi

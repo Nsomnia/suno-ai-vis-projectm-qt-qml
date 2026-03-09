@@ -79,8 +79,10 @@ pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET
 
 # libprojectM v4.1.x - The visualization engine
 pkg_check_modules(PROJECTM REQUIRED "projectM-4>=4.1.0")
+pkg_check_modules(PROJECTM_PLAYLIST REQUIRED "projectM-4-playlist>=4.1.0")
 
 find_library(PROJECTM_LIBRARY NAMES projectM-4 PATHS ${PROJECTM_LIBRARY_DIRS})
+find_library(PROJECTM_PLAYLIST_LIBRARY NAMES projectM-4-playlist PATHS ${PROJECTM_PLAYLIST_LIBRARY_DIRS})
 find_package(OpenGL REQUIRED)
 
 include_directories(${PROJECTM_INCLUDE_DIRS})
@@ -97,6 +99,7 @@ set(SOURCES
     src/video/VideoCapture.cpp
     src/video/FrameCompositor.cpp
     src/visualizer/ProjectMWrapper.cpp
+    src/visualizer/ProjectMImageProvider.cpp
     src/visualizer/PresetManager.cpp
     src/network/SunoClient.cpp
     src/network/GistUploader.cpp
@@ -114,6 +117,7 @@ set(HEADERS
     src/video/VideoCapture.h
     src/video/FrameCompositor.h
     src/visualizer/ProjectMWrapper.h
+    src/visualizer/ProjectMImageProvider.h
     src/visualizer/PresetManager.h
     src/network/SunoClient.h
     src/network/GistUploader.h
@@ -129,6 +133,7 @@ qt_add_executable(${PROJECT_NAME}
 qt_add_qml_module(${PROJECT_NAME}
     URI SunoVisualizer
     VERSION 1.0
+    RESOURCE_PREFIX "/"
     QML_FILES
         qml/main.qml
         qml/components/AccordionDrawer.qml
@@ -139,6 +144,37 @@ qt_add_qml_module(${PROJECT_NAME}
         qml/windows/SunoQueueWindow.qml
         qml/themes/LightTheme.qml
         qml/themes/DarkTheme.qml
+    RESOURCES
+        resources/icons/import.svg
+        resources/icons/download.svg
+        resources/icons/play.svg
+        resources/icons/pause.svg
+        resources/icons/chevron-down.svg
+        resources/icons/chevron-up.svg
+        resources/icons/chevron-left.svg
+        resources/icons/chevron-right.svg
+        resources/icons/code.svg
+        resources/icons/text.svg
+        resources/icons/users.svg
+        resources/icons/volume.svg
+        resources/icons/record.svg
+        resources/icons/skip-forward.svg
+        resources/icons/skip-back.svg
+        resources/icons/plus.svg
+        resources/icons/git-commit.svg
+        resources/icons/maximize.svg
+        resources/icons/sidebar-right.svg
+        resources/icons/settings.svg
+        resources/icons/menu.svg
+        resources/icons/folder.svg
+        resources/icons/folder-open.svg
+        resources/icons/sparkles.svg
+        resources/icons/music.svg
+        resources/icons/waveform.svg
+        resources/icons/file-plus.svg
+        resources/icons/save.svg
+        resources/icons/video.svg
+        resources/icons/star.svg
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -155,6 +191,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     nlohmann_json::nlohmann_json
     PkgConfig::FFMPEG
     ${PROJECTM_LIBRARY}
+    ${PROJECTM_PLAYLIST_LIBRARY}
     OpenGL::GL
 )
 

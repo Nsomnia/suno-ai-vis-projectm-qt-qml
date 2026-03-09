@@ -3,6 +3,7 @@
 #include <QQmlContext>
 #include <QQmlError>
 #include <QIcon>
+#include <QQuickImageProvider>
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>
 #include <spdlog/spdlog.h>
@@ -11,6 +12,7 @@
 #include "core/ConfigManager.h"
 #include "core/ThemeManager.h"
 #include "ui/controllers/MainWindowController.h"
+#include "visualizer/ProjectMImageProvider.h"
 
 // "I'd just like to interject for a moment. What you're referring to as Linux,
 // is in fact, GNU/Linux..." - Well, actually, this runs on Qt.
@@ -66,6 +68,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("appController", mainController);
     engine.rootContext()->setContextProperty("themeManager", themeManager);
     engine.rootContext()->setContextProperty("configManager", configManager);
+
+    // Register image provider for projectM frames
+    auto* imageProvider = new suno::visualizer::ProjectMImageProvider(mainController->visualizer());
+    engine.addImageProvider("projectm", imageProvider);
 
     QObject::connect(&engine, &QQmlApplicationEngine::warnings, [](const QList<QQmlError> &warnings) {
         for (const auto &warning : warnings) {

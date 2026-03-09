@@ -124,7 +124,7 @@ Window {
                                 spacing: 4
                                 
                                 ToolButton {
-                                    icon.source: "qrc:/icons/play.svg"
+                                    icon.source: "qrc:/SunoVisualizer/resources/icons/play.svg"
                                     icon.color: themeManager.textColor
                                     onClicked: {
                                         console.log("Play track", index)
@@ -132,7 +132,7 @@ Window {
                                 }
                                 
                                 ToolButton {
-                                    icon.source: "qrc:/icons/download.svg"
+                                    icon.source: "qrc:/SunoVisualizer/resources/icons/download.svg"
                                     icon.color: themeManager.textColor
                                     onClicked: {
                                         console.log("Download track", index)
@@ -140,7 +140,7 @@ Window {
                                 }
                                 
                                 ToolButton {
-                                    icon.source: "qrc:/icons/import.svg"
+                                    icon.source: "qrc:/SunoVisualizer/resources/icons/import.svg"
                                     icon.color: themeManager.textColor
                                     ToolTip.visible: hovered
                                     ToolTip.text: "Import to project"

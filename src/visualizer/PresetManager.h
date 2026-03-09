@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <QDateTime>
+#include <QList>
 #include <QJsonObject>
 #include <QDateTime>
 
@@ -64,11 +66,13 @@ signals:
 
 private:
     void scanPresets();
+    void scanPath(const QString& path, bool recursive = true);
     void loadPresetMetadata();
     void savePresetMetadata();
     QString metadataFilePath() const;
     
     QString m_presetDirectory;
+    QStringList m_systemPresetPaths;
     QList<PresetInfo> m_presets;
     QJsonObject m_metadata;
 };
