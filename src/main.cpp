@@ -3,7 +3,7 @@
 #include <QQmlContext>
 #include <QQmlError>
 #include <QIcon>
-#include <QQuickImageProvider>
+#include <QQuickWindow>
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>
 #include <spdlog/spdlog.h>
@@ -12,10 +12,8 @@
 #include "core/ConfigManager.h"
 #include "core/ThemeManager.h"
 #include "ui/controllers/MainWindowController.h"
+#include "visualizer/ProjectMRenderer.h"
 #include "visualizer/ProjectMImageProvider.h"
-
-// "I'd just like to interject for a moment. What you're referring to as Linux,
-// is in fact, GNU/Linux..." - Well, actually, this runs on Qt.
 
 int main(int argc, char *argv[])
 {
@@ -23,7 +21,6 @@ int main(int argc, char *argv[])
     spdlog::info("Suno Visualizer v0.0.1 - Initializing...");
 
 #if defined(Q_OS_LINUX)
-    // Check if running Arch (btw)
     QFile osRelease("/etc/os-release");
     if (osRelease.open(QIODevice::ReadOnly)) {
         QString content = osRelease.readAll();
@@ -35,57 +32,61 @@ int main(int argc, char *argv[])
 #endif
 
     QGuiApplication app(argc, argv);
-    
+
     app.setOrganizationName("SunoVisualizer");
     app.setOrganizationDomain("sunovisualizer.local");
     app.setApplicationName("Suno Visualizer");
     app.setApplicationVersion("0.0.1");
 
-    // Core application singleton
+    QSurfaceFormat format;
+    format.setVersion(3, 3);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setRenderableType(QSurfaceFormat::OpenGL);
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(8);
+    format.setSamples(4);
+    QSurfaceFormat::setDefaultFormat(format);
+
     auto* coreApp = suno::core::Application::instance();
     if (!coreApp->initialize()) {
         spdlog::critical("Failed to initialize core application");
         return -1;
     }
 
-    // Configuration manager
     auto* configManager = suno::core::ConfigManager::instance();
     if (!configManager->load()) {
         spdlog::warn("Failed to load configuration, using defaults");
     }
 
-    // Theme manager
     auto* themeManager = suno::core::ThemeManager::instance();
     themeManager->loadTheme(configManager->currentTheme());
 
-    // Main window controller
     auto* mainController = new suno::ui::MainWindowController(&app);
 
-    // QML Engine
+    qmlRegisterType<suno::visualizer::ProjectMRenderer>("suno.visualizer", 1, 0, "ProjectMRenderer");
+
     QQmlApplicationEngine engine;
 
-    // Expose C++ objects to QML
     engine.rootContext()->setContextProperty("appController", mainController);
     engine.rootContext()->setContextProperty("themeManager", themeManager);
     engine.rootContext()->setContextProperty("configManager", configManager);
 
-    // Register image provider for projectM frames
     auto* imageProvider = new suno::visualizer::ProjectMImageProvider(mainController->visualizer());
     engine.addImageProvider("projectm", imageProvider);
 
     QObject::connect(&engine, &QQmlApplicationEngine::warnings, [](const QList<QQmlError> &warnings) {
         for (const auto &warning : warnings) {
-            spdlog::error("QML warning: {} ({}:{}:{})", 
-                          warning.description().toStdString(),
-                          warning.url().toString().toStdString(),
-                          warning.line(),
-                          warning.column());
+            spdlog::error("QML warning: {} ({}:{}:{})",
+                warning.description().toStdString(),
+                warning.url().toString().toStdString(),
+                warning.line(),
+                warning.column());
         }
     });
 
     using namespace Qt::StringLiterals;
     const QUrl mainQmlUrl(u"qrc:/SunoVisualizer/qml/main.qml"_s);
-    
+
     QObject::connect(
         &engine, &QQmlApplicationEngine::objectCreated,
         &app, [mainQmlUrl](QObject *obj, const QUrl &objUrl) {
@@ -93,8 +94,7 @@ int main(int argc, char *argv[])
                 spdlog::critical("Failed to load QML");
                 QCoreApplication::exit(-1);
             }
-        },
-        Qt::QueuedConnection
+        }, Qt::QueuedConnection
     );
 
     engine.load(mainQmlUrl);
@@ -105,6 +105,6 @@ int main(int argc, char *argv[])
     }
 
     spdlog::info("Application started successfully. Talk is cheap, show me the visuals.");
-    
+
     return app.exec();
 }

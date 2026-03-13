@@ -3,19 +3,70 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Effects
 import QtQuick.Window
+import QtQuick.Dialogs
 import SunoVisualizer
 
 ApplicationWindow {
-    id: mainWindow
-    
-    width: 1600
-    height: 900
-    minimumWidth: 1200
-    minimumHeight: 700
-    visible: true
-    title: qsTr("Suno Visualizer - The Future is Visual")
-    
-    color: themeManager.backgroundColor
+	id: mainWindow
+
+	width: 1600
+	height: 900
+	minimumWidth: 1200
+	minimumHeight: 700
+	visible: true
+	title: qsTr("Suno Visualizer - The Future is Visual")
+
+	color: themeManager.backgroundColor
+
+	menuBar: MenuBar {
+		Menu {
+			title: qsTr("&File")
+
+			Action {
+				text: qsTr("&Open Audio...")
+				shortcut: StandardKey.Open
+				onTriggered: fileDialog.open()
+			}
+			Action {
+				text: qsTr("&Save Project")
+				shortcut: StandardKey.Save
+				onTriggered: appController.saveProject()
+			}
+			MenuSeparator {}
+			Action {
+				text: qsTr("&Quit")
+				shortcut: StandardKey.Quit
+				onTriggered: Qt.quit()
+			}
+		}
+
+		Menu {
+			title: qsTr("&View")
+
+			Action {
+				text: qsTr("&Fullscreen")
+				shortcut: "F11"
+				checkable: true
+				checked: mainWindow.visibility === Window.FullScreen
+				onTriggered: {
+					if (mainWindow.visibility === Window.FullScreen) {
+						mainWindow.showNormal()
+					} else {
+						mainWindow.showFullScreen()
+					}
+				}
+			}
+		}
+
+		Menu {
+			title: qsTr("&Help")
+
+			Action {
+				text: qsTr("&About")
+				onTriggered: aboutDialog.open()
+			}
+		}
+	}
     
     // Window state
     property bool leftDrawerOpen: true
@@ -505,9 +556,69 @@ ApplicationWindow {
         }
     }
     
-    // Startup message
-    Component.onCompleted: {
-        console.log("Suno Visualizer started successfully")
-        console.log(appController.getSystemWisdom())
-    }
+	// Startup message
+	Component.onCompleted: {
+		console.log("Suno Visualizer started successfully")
+		console.log(appController.getSystemWisdom())
+	}
+
+	// About dialog
+	Dialog {
+		id: aboutDialog
+		title: "About Suno Visualizer"
+		standardButtons: Dialog.Ok
+		modal: true
+		anchors.centerIn: parent
+		width: 400
+
+		ColumnLayout {
+			spacing: 12
+			width: parent.width
+
+			Label {
+				text: "Suno Visualizer"
+				font.pixelSize: 24
+				font.weight: Font.Bold
+				color: themeManager.textColor
+				Layout.alignment: Qt.AlignHCenter
+			}
+
+			Label {
+				text: "v0.0.1"
+				font.pixelSize: 14
+				color: Qt.darker(themeManager.textColor, 1.3)
+				Layout.alignment: Qt.AlignHCenter
+			}
+
+			Label {
+				text: "Professional A/V DAW Context Manager\nwith Suno Integration & projectM Visualizer"
+				font.pixelSize: 12
+				color: themeManager.textColor
+				wrapMode: Text.WordWrap
+				horizontalAlignment: Text.AlignHCenter
+				Layout.fillWidth: true
+			}
+
+			Label {
+				text: "Built with Qt6, FFmpeg, PulseAudio, and libprojectM"
+				font.pixelSize: 11
+				color: Qt.darker(themeManager.textColor, 1.5)
+				Layout.alignment: Qt.AlignHCenter
+			}
+		}
+	}
+
+	// File dialog for opening audio files
+	FileDialog {
+		id: fileDialog
+		title: "Open Audio File"
+		nameFilters: ["Audio files (*.mp3 *.wav *.flac *.ogg *.m4a *.aac)", "All files (*)"]
+		onAccepted: {
+			var path = selectedFile.toString()
+			if (path.startsWith("file://")) {
+				path = path.substring(7)
+			}
+			appController.loadAudioFile(path)
+		}
+	}
 }

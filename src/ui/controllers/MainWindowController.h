@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "core/GitController.h"
+#include "audio/AudioDecoder.h"
 #include "audio/AudioEngine.h"
 #include "audio/StemProcessor.h"
 #include "video/VideoCapture.h"
@@ -22,8 +23,9 @@ class MainWindowController : public QObject
     Q_OBJECT
     
     // Expose components to QML
-    Q_PROPERTY(suno::audio::AudioEngine* audioEngine READ audioEngine CONSTANT)
-    Q_PROPERTY(suno::audio::StemProcessor* stemProcessor READ stemProcessor CONSTANT)
+  Q_PROPERTY(suno::audio::AudioDecoder* audioDecoder READ audioDecoder CONSTANT)
+  Q_PROPERTY(suno::audio::AudioEngine* audioEngine READ audioEngine CONSTANT)
+  Q_PROPERTY(suno::audio::StemProcessor* stemProcessor READ stemProcessor CONSTANT)
     Q_PROPERTY(suno::video::VideoCapture* videoCapture READ videoCapture CONSTANT)
     Q_PROPERTY(suno::visualizer::ProjectMWrapper* visualizer READ visualizer CONSTANT)
     Q_PROPERTY(suno::visualizer::PresetManager* presetManager READ presetManager CONSTANT)
@@ -42,7 +44,8 @@ public:
     ~MainWindowController() override;
     
     // Component accessors
-    suno::audio::AudioEngine* audioEngine() const { return m_audioEngine.get(); }
+    suno::audio::AudioDecoder* audioDecoder() const { return m_audioDecoder.get(); }
+  suno::audio::AudioEngine* audioEngine() const { return m_audioEngine.get(); }
     suno::audio::StemProcessor* stemProcessor() const { return m_stemProcessor.get(); }
     suno::video::VideoCapture* videoCapture() const { return m_videoCapture.get(); }
     suno::visualizer::ProjectMWrapper* visualizer() const { return m_visualizer.get(); }
@@ -97,7 +100,8 @@ private:
     
     // Core components
     std::unique_ptr<suno::core::GitController> m_gitController;
-    std::unique_ptr<suno::audio::AudioEngine> m_audioEngine;
+    std::unique_ptr<suno::audio::AudioDecoder> m_audioDecoder;
+  std::unique_ptr<suno::audio::AudioEngine> m_audioEngine;
     std::unique_ptr<suno::audio::StemProcessor> m_stemProcessor;
     std::unique_ptr<suno::video::VideoCapture> m_videoCapture;
     std::unique_ptr<suno::video::FrameCompositor> m_frameCompositor;
